@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+<head>
+    <title>XXX学校点名器</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 20px;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: #f3f4f6;
+            color: #333;
+        }
+
+			table {
+				width: 80%; /* 表格占据窗口的80%宽度 */
+				height: 75%;
+				margin-bottom: 20px;
+				#border-collapse: collapse;
+				grid-template-columns: repeat(11, 1fr)
+			}
+
+			td {
+				width: auto; /* 每个单元格占据表格的10%宽度 */
+				height: 60px; /* 增大单元格的高度 */
+				background: lightgray;
+				text-align: center;
+				vertical-align: middle;
+				font-size: 24px; /* 增大字体 */
+			}
+
+        .way {
+            background: #f7fafc;
+        }
+
+        .on {
+            background: #e2e8f0;
+            cursor: pointer;
+        }
+
+        .off {
+            background: #f7fafc;
+        }
+
+        .other {
+            background: #a0aec0;
+            color: white;
+        }
+
+        .highlight {
+            background: #ffeb3b;
+            color: #000;
+border-radius: 8px;
+        }
+
+        .in {
+            background: #38a169;
+            color: #fff;
+border-radius: 8px;
+        }
+
+        #btn {
+            width: 150px;
+            height: 50px;
+            background: #3182ce;
+            color: #fff;
+            font-size: 23px;
+            font-weight: 900;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease-in-out, transform 0.2s;
+        }
+
+        #btn:hover {
+            background: #2b6cb0;
+            transform: scale(1.05);
+        }
+
+        #stu {
+            display: block;
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <!--表格-->
+        <table cellspacing="0" border="1" align="center">
+            <caption><h1>XXX学校点名器</h1></caption>
+            <!-- 1 -->
+            <tr>
+                <td class="on">名字1</td>
+                <td class="on">名字2</td>
+                <td rowspan="6" class="way">过道</td>
+                <td class="on">名字3</td>
+                <td class="on">名字4</td>
+                <td rowspan="6" class="way">过道</td>
+                <td class="on">名字5</td>
+                <td class="on">名字6</td>
+                <td rowspan="6" class="way">过道</td>
+                <td class="on">名字7</td>
+                <td class="on">名字8</td>
+            </tr>
+            <!-- 2 -->
+            <tr>
+	<td class="on">BB</td>
+                <td class="on">BB</td>
+                <td class="on">BB</td>
+                <td class="on">BB</td>
+                <td class="on">BB</td>
+                <td class="on">BB</td>
+                <td class="on">BB</td>
+                <td class="on">BB</td>
+            </tr>
+            <!-- 3 -->
+            <tr>
+                <td colspan="2" class="other">柱子</td>
+                <td class="on">CC</td>
+                <td class="on">CC</td>
+                <td class="on">CC</td>
+                <td></td>
+                <td></td>
+                <td class="on">CC</td>
+            </tr>
+            <!-- 4 -->
+            <tr>
+                <td class="on">DD</td>
+                <td class="on">DD</td>
+                <td class="on">DD</td>
+                <td class="on">DD</td>
+                <td class="on">DD</td>
+                <td class="on">DD</td>
+                <td class="on">DD</td>
+                <td class="on">DD</td>
+            </tr>
+            <!-- 5 -->
+            <tr>
+                <td class="on">EE</td>
+                <td class="on">EE</td>
+                <td class="on">EE</td>
+                <td class="on">EE</td>
+                <td class="on">EE</td>
+                <td class="on">EE</td>
+                <td class="on">EE</td>
+                <td></td>
+            </tr>
+            <!-- 6 -->
+            <tr>
+                <td></td>
+                <td class="on">FF</td>
+                <td class="on">FF</td>
+                <td class="on">FF</td>
+                <td class="on">FF</td>
+                <td class="on">FF</td>
+                <td class="on">FF</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="9">讲台</td>
+	<td class="on">特等座</td>
+                <td class="other">门</td>
+            </tr>
+        </table>
+    </div>
+    <br />
+    <!-- 开始结束按钮 -->
+    <button id="btn" onclick="start()">开&nbsp;始</button><br/>
+    <b id="stu">Name</b>
+
+    <script>
+        var timer;
+        var nameNum;
+        var btn = document.getElementById('btn');
+        var stu = document.getElementById('stu');
+        var u1 = document.getElementsByClassName('on');
+
+        function start() {
+            // 恢复所有名字的状态为 'on'
+            for (let nameElement of document.querySelectorAll('.in')) {
+                nameElement.setAttribute('class', 'on');
+            }
+
+            btn.innerHTML = '停&nbsp;止';
+            btn.setAttribute('onclick', 'stop()');
+
+            // 循环计时器+随机数的应用
+            timer = setInterval(function() {
+                // 生成随机索引
+                nameNum = Math.floor(Math.random() * u1.length);
+
+                // 当前抽取的名字元素
+                var currentNameElement = u1[nameNum];
+
+                // 显示随机名字
+                stu.innerHTML = currentNameElement.innerHTML;
+
+                // 将当前抽到的名字临时标记为 'in'
+                currentNameElement.setAttribute('class', 'in');
+
+                // 设置延迟以恢复状态
+                setTimeout(function() {
+                    currentNameElement.setAttribute('class', 'on');
+                }, 100); // 延迟100毫秒后恢复状态，可以根据需要调整时间
+
+            }, 60); // 每60毫秒抽取一次
+        }
+
+        function stop() {
+            if (u1.length > 0) {
+                // 将当前抽到的名字保持为 'in'
+                u1[nameNum].setAttribute('class', 'in');
+            }
+            btn.innerHTML = '开&nbsp;始';
+            btn.setAttribute('onclick', 'start()');
+            clearInterval(timer);
+        }
+    </script>
+</body>
+</html>

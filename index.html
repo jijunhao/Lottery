@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽签程序</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+        }
+        #nameDisplay {
+            font-size: 3em;
+            color: #fff;
+            width: 400px;
+            height: 400px;
+            line-height: 400px;
+            text-align: center;
+            border: 10px solid #fff;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            display: none; /* 初始隐藏 */
+            overflow: hidden; /* 防止文字溢出 */
+            white-space: nowrap; /* 防止文字换行 */
+        }
+        #pauseButton {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #ff5722;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s, box-shadow 0.3s;
+            display: none; /* 初始隐藏 */
+        }
+        #pauseButton:hover {
+            background-color: #e64a19;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        #dropArea {
+            width: 80%;
+            height: 200px;
+            border: 2px dashed #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+        #dropArea.dragover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dropArea">拖动 Excel 文件到此处上传</div>
+    <div id="nameDisplay"></div>
+    <button id="pauseButton">暂停</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        let names = [];
+        let intervalId;
+        let isRunning = false;
+
+        const dropArea = document.getElementById('dropArea');
+        const pauseButton = document.getElementById('pauseButton');
+        const nameDisplay = document.getElementById('nameDisplay');
+
+        dropArea.addEventListener('dragover', function(event) {
+            event.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', function() {
+            dropArea.classList.remove('dragover');
+        });
+
+        dropArea.addEventListener('drop', function(event) {
+            event.preventDefault();
+            dropArea.classList.remove('dragover');
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.includes('sheet')) {
+                handleFile(file);
+                dropArea.style.display = 'none';  // 隐藏上传区域
+                nameDisplay.style.display = 'block';  // 显示名字显示区域
+                pauseButton.style.display = 'block';  // 显示暂停按钮
+            } else {
+                alert('请上传一个有效的 Excel 文件。');
+            }
+        });
+
+        pauseButton.addEventListener('click', function() {
+            if (isRunning) {
+                clearInterval(intervalId);
+                isRunning = false;
+                this.textContent = '继续';
+            } else {
+                startRolling();
+                this.textContent = '暂停';
+            }
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                names = XLSX.utils.sheet_to_json(worksheet, { header: 1 }).flat();
+                startRolling();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function startRolling() {
+            if (names.length > 0) {
+                intervalId = setInterval(function() {
+                    const randomIndex = Math.floor(Math.random() * names.length);
+                    const selectedName = names[randomIndex];
+                    nameDisplay.textContent = selectedName;
+                    adjustFontSize(selectedName);
+                }, 100);
+                isRunning = true;
+            }
+        }
+
+        function adjustFontSize(text) {
+            const maxFontSize = 3; // 初始字体大小
+            const minFontSize = 2; // 最小字体大小
+            const step = 0.1; // 调整步长
+            let fontSize = maxFontSize;
+
+            nameDisplay.style.fontSize = fontSize + 'em';
+            while (nameDisplay.scrollWidth > nameDisplay.clientWidth - 20 || nameDisplay.scrollHeight > nameDisplay.clientHeight - 20) {
+                fontSize -= step;
+                if (fontSize < minFontSize) {
+                    fontSize = minFontSize;
+                    break;
+                }
+                nameDisplay.style.fontSize = fontSize + 'em';
+            }
+        }
+    </script>
+
+</body>
+</html>
